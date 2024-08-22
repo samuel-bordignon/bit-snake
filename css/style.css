@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'lato', sans-serif;
+}
+
+body{
+    background-color: #191919;
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: white;
+    
+}
+
+canvas{
+    background-color: #111;
+}
+
+.header-score{
+    display: flex;
+    gap: 150px;
+}
+
+.pontuacao-p1, .pontuacao-p2{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.8rem;
+}
+
+.pontuacao-value-p1, .pontuacao-value-p2{
+    font-weight: 700;
+    font-size: 4.5rem;
+    display: block;
+    margin-top: -10px;
+}
+
+.menu-screen{
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+}
+
+.state-game{
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 3rem;
+}
+
+.pontuacao-final{
+    font-weight: 500;
+    font-size: 1.5rem;
+}
+
+.btn-play, .btn-menu{
+    border: none;
+    border-radius: 100px;
+    padding:10px 15px 10px 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.conainer-menu{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+
+}
+
+.multplayer, .singleplayer{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: #111;
+    width: 30%;
+    
+
+}
+
+a{
+    color: white;
+    text-decoration: none;
+}
