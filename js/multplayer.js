@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d')
 
 const scoreP1 = document.querySelector('.pontuacao-value-p1')
 const scoreP2 = document.querySelector('.pontuacao-value-p2')
+const conatiner = document.querySelector('.container')
 const finalScore = document.querySelector('.pontuacao-final > span')
 const menu = document.querySelector('.menu-screen')
 const stateGame = document.querySelector('.state-game')
@@ -13,9 +14,19 @@ const buttonMenu = document.querySelector('.btn-menu')
 const size = 30
 
 const audio = new Audio('audio.mp3')
+const background = new Audio('background.mp3')
+const death = new Audio('death.mp3')
 
-const dbCobrinha1 = { x: 120, y: 240, corCabeca: 'red', corCorpo: 'red' }
-const dbCobrinha2 = { x: 420, y: 240, corCabeca: 'blue', corCorpo: 'blue' }
+background.volume = 0.5
+background.loop = true
+background.play()
+
+
+
+
+
+const dbCobrinha1 = { x: 150, y: 300, corCabeca: 'red', corCorpo: 'red' }
+const dbCobrinha2 = { x: 450, y: 300, corCabeca: 'blue', corCorpo: 'blue' }
 
 let isGameOver = false
 
@@ -38,30 +49,35 @@ const randomPosition = () => {
 }
 
 const randomColor = () => {
-    const red = randomNmber(0, 255)
-    const green = randomNmber(0, 255)
-    const blue = randomNmber(0, 255)
+    const red = randomNmber(50, 255)
+    const green = randomNmber(50, 255)
+    const blue = randomNmber(50, 255)
 
     return `rgb(${red}, ${green}, ${blue})`
 }
 
-const food = {
-    x: randomPosition(),
-    y: randomPosition(),
-    color: randomColor()
-}
+const fruits = [
+    { x: randomPosition(), y: randomPosition(), color: randomColor() },
+    { x: randomPosition(), y: randomPosition(), color: randomColor() },
+    { x: randomPosition(), y: randomPosition(), color: randomColor() },
+    { x: randomPosition(), y: randomPosition(), color: randomColor() },
+    { x: randomPosition(), y: randomPosition(), color: randomColor() },
+]
 
 let directionP1, directionP2, loopId
 
 const desenhaComida = () => {
 
-    const { x, y, color } = food
+    fruits.forEach(({ x, y, color }) => {
+        ctx.shadowBlur = 6
+        ctx.shadowColor = color
+        ctx.fillStyle = color
+        ctx.fillRect(x, y, size, size)
+        ctx.shadowBlur = 0
 
-    ctx.shadowBlur = 6
-    ctx.shadowColor = color
-    ctx.fillStyle = food.color
-    ctx.fillRect(food.x, food.y, size, size)
-    ctx.shadowBlur = 0
+    })
+
+
 
 }
 
@@ -83,12 +99,12 @@ const desenhaGrade = () => {
     for (let i = size; i < canvas.width; i += size) {
         ctx.beginPath()
         ctx.lineTo(i, 0)
-        ctx.lineTo(i, 600)
+        ctx.lineTo(i, 630)
         ctx.stroke()
 
         ctx.beginPath()
         ctx.lineTo(0, i)
-        ctx.lineTo(600, i)
+        ctx.lineTo(630, i)
         ctx.stroke()
     }
 }
@@ -100,15 +116,19 @@ const moveCobrinha = (cobra, direction) => {
     let newHead;
     if (direction === 'right') {
         newHead = { x: head.x + size, y: head.y };
+        if (newHead.x >= canvas.width) newHead.x = 0; // Teletransporta para o lado esquerdo
     }
     if (direction === 'left') {
         newHead = { x: head.x - size, y: head.y };
+        if (newHead.x < 0) newHead.x = canvas.width - size; // Teletransporta para o lado direito
     }
     if (direction === 'down') {
         newHead = { x: head.x, y: head.y + size };
+        if (newHead.y >= canvas.height) newHead.y = 0; // Teletransporta para o topo
     }
     if (direction === 'up') {
         newHead = { x: head.x, y: head.y - size };
+        if (newHead.y < 0) newHead.y = canvas.height - size; // Teletransporta para a parte inferior
     }
 
     // Adiciona o novo segmento com a cor correta
@@ -117,47 +137,60 @@ const moveCobrinha = (cobra, direction) => {
 };
 
 const checkEat = (cobra, score) => {
-    const head = cobra[cobra.length - 1];
-
-    if (head.x === food.x && head.y === food.y) {
-        incrementScore(score);
-        cobra.push({ ...head, corCabeca: head.corCabeca, corCorpo: head.corCorpo });
-        audio.play();
-
-        let x = randomPosition();
-        let y = randomPosition();
-
-        // Garante que a comida não apareça em cima da cobra
-        while (cobrinha1.find((position) => position.x === x && position.y === y) || cobrinha2.find((position) => position.x === x && position.y === y)) {
-            x = randomPosition();
-            y = randomPosition();
-        }
-
-        food.x = x;
-        food.y = y;
-        food.color = randomColor();
-    }
-};
-
-const chackColision = (cobra) => {
     const head = cobra[cobra.length - 1]
-    const canvasLimit = canvas.width - size
-    const neckIndex = cobra.length - 2
 
-    const wallColision =
-        head.x < 0 || head.x > canvasLimit || head.y < 0 || head.y > canvasLimit
+    fruits.forEach((fruit, index) => {
+        if (head.x === fruit.x && head.y === fruit.y) {
+            incrementScore(score)
+            cobra.push({ ...head, corCabeca: head.corCabeca, corCorpo: head.corCorpo })
+            audio.preload = 'auto'
+            audio.play()
 
-    const selfColision = cobra.find((position, index) => {
-        return index < neckIndex && position.x == head.x && position.y == head.y
+            // Garante que a nova fruta não apareça em cima das cobras
+            let x = randomPosition()
+            let y = randomPosition()
+
+            while (cobrinha1.find(position => position.x === x && position.y === y) || cobrinha2.find(position => position.x === x && position.y === y)) {
+                x = randomPosition()
+                y = randomPosition()
+            }
+
+            // Atualiza a fruta consumida com nova posição e cor
+            fruits[index] = { x, y, color: randomColor() }
+        }
     })
+}
 
-    const playerColision = cobra.find((position, index) => {
-        position.x == head.x && position.y == head.y
-    })
+const checkHeadCollidesWithBody = (head, body) => {
+    return body.some(segment => segment.x === head.x && segment.y === head.y);
+}
 
+const chackColision = (cobra1, cobra2) => {
+    const head1 = cobra1[cobra1.length - 1]; // Cabeça da Cobra 1
+    const head2 = cobra2[cobra2.length - 1]; // Cabeça da Cobra 2
+    const canvasLimit = canvas.width - size;
+    const neckIndex1 = cobra1.length - 2;
+    const neckIndex2 = cobra2.length - 2;
 
-    if (wallColision || selfColision) {
-        gameOver()
+    // Verifica colisão com as paredes
+    const wallColision1 = head1.x < 0 || head1.x > canvasLimit || head1.y < 0 || head1.y > canvasLimit;
+    const wallColision2 = head2.x < 0 || head2.x > canvasLimit || head2.y < 0 || head2.y > canvasLimit;
+
+    // Verifica colisão com o próprio corpo
+    const selfColision1 = checkHeadCollidesWithBody(head1, cobra1.slice(0, neckIndex1));
+    const selfColision2 = checkHeadCollidesWithBody(head2, cobra2.slice(0, neckIndex2));
+
+    // Verifica colisão entre as cabeças das cobras e o corpo da outra cobra
+    const playerColision1 = checkHeadCollidesWithBody(head1, cobra2);
+    const playerColision2 = checkHeadCollidesWithBody(head2, cobra1);
+
+    // Verifica e determina o resultado
+    if (selfColision1 || playerColision1) {
+        gameOver("Jogador 2 venceu!", 'blue')
+
+    } else if (selfColision2 || playerColision2) {
+        gameOver("Jogador 1 venceu!", 'red')
+
     }
 }
 
@@ -168,31 +201,26 @@ const checkScore = (player) => {
     }
 }
 
-const gameOver = () => {
+const gameOver = (player, color) => {
+    if (isGameOver) return // Evitar chamada repetida de gameOver
+
     directionP1 = undefined
     directionP2 = undefined
-    stateGame.innerText = 'game over'
+    stateGame.innerText = player
+    stateGame.style.color = color
     isGameOver = true
 
     menu.style.display = 'flex'
-    finalScore.innerText = scoreP1.innerText
-    canvas.style.filter = 'blur(2px)'
-}
+    conatiner.style.filter = 'blur(5px)'
 
-const playAgain = () => {
-    directionP1 = undefined
-    directionP2 = undefined
-    stateGame.innerText = 'you win'
-    isGameOver = true
-
-    menu.style.display = 'flex'
-    finalScore.innerText = scoreP1.innerText
-    canvas.style.filter = 'blur(2px)'
+    death.play() // Reproduzir som de morte
+    background.pause()
+    clearTimeout(loopId);// Parar o loop do jogo
 }
 
 const gameLoop = () => {
     clearInterval(loopId)
-    ctx.clearRect(0, 0, 600, 600)
+    ctx.clearRect(0, 0, 630, 630)
     desenhaGrade()
     desenhaComida()
     desenhaCobra(cobrinha1)
@@ -201,10 +229,7 @@ const gameLoop = () => {
     moveCobrinha(cobrinha2, directionP2)
     checkEat(cobrinha1, scoreP1)
     checkEat(cobrinha2, scoreP2)
-    chackColision(cobrinha1)
-    chackColision(cobrinha2)
-
-    console.log(cobrinha1[0].x, cobrinha1[0].y)
+    chackColision(cobrinha1, cobrinha2)
 
     loopId = setTimeout(() => {
         gameLoop()
@@ -212,6 +237,8 @@ const gameLoop = () => {
 }
 
 gameLoop()
+
+
 
 let directionLocked = false; // Variável para controlar o delay entre mudanças de direção
 
@@ -243,38 +270,40 @@ document.addEventListener('keydown', ({ key }) => {
 
     //movimentação do player 2
 
-    if((key === "d" || key === 'D') && directionP1 !== "left") {
+    if ((key === "d" || key === 'D') && directionP1 !== "left") {
         directionP1 = 'right';
         directionLocked = true;
     }
 
-    if((key === "a" || key === 'A') && directionP1 !== "right") {
+    if ((key === "a" || key === 'A') && directionP1 !== "right") {
         directionP1 = 'left';
         directionLocked = true;
     }
 
-    if((key === "S" || key === 's') && directionP1 !== "up") {
+    if ((key === "S" || key === 's') && directionP1 !== "up") {
         directionP1 = 'down';
         directionLocked = true;
     }
-    if((key === "W" || key === 'w') && directionP1 !== "down") {
+    if ((key === "W" || key === 'w') && directionP1 !== "down") {
         directionP1 = 'up';
         directionLocked = true;
     }
 
     setTimeout(() => {
         directionLocked = false;
-    }, 1);
+    }, 100);
 });
 
 buttonPlay.addEventListener('click', () => {
+
+    background.play()
 
     isGameOver = false
     scoreP1.innerText = '00'
     scoreP2.innerText = '00'
 
     menu.style.display = 'none'
-    canvas.style.filter = 'none'
+    conatiner.style.filter = 'none'
 
     cobrinha1 = [dbCobrinha1]
     cobrinha2 = [dbCobrinha2]
