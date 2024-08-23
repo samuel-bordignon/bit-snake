@@ -27,6 +27,24 @@ body {
     width: 100%;
 }
 
+.container-score{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 80px;
+}
+
+.timer{
+    font-size: 40px;
+    width: 370px;
+}
+
+.menu-screen .timer{
+    font-size: 1.5rem;
+    width: fit-content;
+}
+
+
 canvas {
     background-color: #111;
     width: 700px;

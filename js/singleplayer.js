@@ -8,11 +8,16 @@ const menu = document.querySelector('.menu-screen')
 const stateGame = document.querySelector('.state-game')
 const buttonPlay = document.querySelector('.btn-play')
 const buttonMenu = document.querySelector('.btn-menu')
+const minuteSpan = document.getElementById('minute')
+const secondSpan = document.getElementById('second')
+const millisecondSpan = document.getElementById('millisecond')
+const minuteSpanFinal = document.getElementById('minute-final')
+const secondSpanFinal = document.getElementById('second-final')
+const millisecondSpanFinal = document.getElementById('millisecond-final')
+
 
 
 const size = 30
-
-let timer = 0
 
 const audio = new Audio('audio.mp3')
 const background = new Audio('background.mp3')
@@ -25,7 +30,10 @@ background.play()
 const initiaPosition = { x: 270, y: 240 }
 
 let isGameOver = false
-
+let minute = 0
+let second = 0
+let millisecond = 0
+let cron
 let cobrinha = [initiaPosition]
 
 
@@ -183,7 +191,11 @@ const gameOver = () => {
 
     death.play() // Reproduzir som de morte
     background.pause()
-    clearTimeout(loopId);// Parar o loop do jogo
+    clearTimeout(loopId)// Parar o loop do jogo
+    pause()
+    minuteSpanFinal.innerText = returnData(minute)
+    secondSpanFinal.innerText = returnData(second)
+    millisecondSpanFinal.innerText = returnData(millisecond)
 }
 
 const playAgain = () => {
@@ -193,7 +205,47 @@ const playAgain = () => {
 
     menu.style.display = 'flex'
     finalScore.innerText = score.innerText
-    canvas.style.filter = 'blur(2px)'
+    canvas.style.filter = 'blur(6px)'
+    pause()
+    minuteSpanFinal.innerText = returnData(minute)
+    secondSpanFinal.innerText = returnData(second)
+    millisecondSpanFinal.innerText = returnData(millisecond)
+}
+
+const start = () => {
+    pause()
+    cron = setInterval(() => { timer() }, 10)
+}
+
+const pause = () => {
+    clearInterval(cron)
+}
+
+const reset = () => {
+    minute = 0
+    second = 0
+    millisecond = 0
+    document.getElementById('minute').innerText = '00'
+    document.getElementById('second').innerText = '00'
+    document.getElementById('millisecond').innerText = '000'
+}
+
+const timer = () => {
+    if ((millisecond += 10) == 1000) {
+        millisecond = 0
+        second++
+    }
+    if (second == 60) {
+        second = 0
+        minute++
+    }
+    minuteSpan.innerText = returnData(minute)
+    secondSpan.innerText = returnData(second)
+    millisecondSpan.innerText = returnData(millisecond)
+}
+
+const returnData = (input) => {
+    return input >= 10 ? input : `0${input}`
 }
 
 const gameLoop = () => {
@@ -210,43 +262,46 @@ const gameLoop = () => {
 
     loopId = setTimeout(() => {
         gameLoop()
-    }, 200);
+    }, 200)
 }
 
 gameLoop()
 
-let directionLocked = false; // Variável para controlar o delay entre mudanças de direção
+let directionLocked = false // Variável para controlar o delay entre mudanças de direção
 
 document.addEventListener('keydown', ({ key }) => {
     if (isGameOver) return // Impedir movimento se o jogo acabou
 
-    if (directionLocked) return; // Se a direção estiver bloqueada, ignorar o comando
+    if (directionLocked) return // Se a direção estiver bloqueada, ignorar o comando
 
+    if(key != undefined){
+        start()
+    }
     // Verifica a direção atual para evitar a mudança para a direção oposta
     if ((key === "ArrowRight" || key === 'd') && direction !== "left") {
-        direction = 'right';
-        directionLocked = true;
+        direction = 'right'
+        directionLocked = true
     }
 
     if ((key === "ArrowLeft" || key === 'a') && direction !== "right") {
-        direction = 'left';
-        directionLocked = true;
+        direction = 'left'
+        directionLocked = true
     }
 
     if ((key === "ArrowDown" || key === 's') && direction !== "up") {
-        direction = 'down';
-        directionLocked = true;
+        direction = 'down'
+        directionLocked = true
     }
 
     if ((key === "ArrowUp" || key === 'w') && direction !== "down") {
-        direction = 'up';
-        directionLocked = true;
+        direction = 'up'
+        directionLocked = true
     }
 
     setTimeout(() => {
-        directionLocked = false;
-    }, 100);
-});
+        directionLocked = false
+    }, 110)
+})
 
 buttonPlay.addEventListener('click', () => {
 
@@ -258,10 +313,10 @@ buttonPlay.addEventListener('click', () => {
     conatiner.style.filter = 'none'
 
     cobrinha = [initiaPosition]
+
+    reset()
+    
 })
 
 buttonMenu.addEventListener('click', () => window.location.href = 'menu.html')
-
-
-
 

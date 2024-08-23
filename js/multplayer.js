@@ -22,11 +22,8 @@ background.loop = true
 background.play()
 
 
-
-
-
-const dbCobrinha1 = { x: 150, y: 300, corCabeca: 'red', corCorpo: 'red' }
-const dbCobrinha2 = { x: 450, y: 300, corCabeca: 'blue', corCorpo: 'blue' }
+const dbCobrinha1 = { x: 150, y: 300, corCabeca: '#FF0000', corCorpo: '#D40000' }
+const dbCobrinha2 = { x: 450, y: 300, corCabeca: '#0000FF', corCorpo: '#0000D4' }
 
 let isGameOver = false
 
@@ -110,31 +107,31 @@ const desenhaGrade = () => {
 }
 
 const moveCobrinha = (cobra, direction) => {
-    if (!direction) return;
-    const head = cobra[cobra.length - 1];
+    if (!direction) return
+    const head = cobra[cobra.length - 1]
 
-    let newHead;
+    let newHead
     if (direction === 'right') {
-        newHead = { x: head.x + size, y: head.y };
-        if (newHead.x >= canvas.width) newHead.x = 0; // Teletransporta para o lado esquerdo
+        newHead = { x: head.x + size, y: head.y }
+        if (newHead.x >= canvas.width) newHead.x = 0 // Teletransporta para o lado esquerdo
     }
     if (direction === 'left') {
-        newHead = { x: head.x - size, y: head.y };
-        if (newHead.x < 0) newHead.x = canvas.width - size; // Teletransporta para o lado direito
+        newHead = { x: head.x - size, y: head.y }
+        if (newHead.x < 0) newHead.x = canvas.width - size // Teletransporta para o lado direito
     }
     if (direction === 'down') {
-        newHead = { x: head.x, y: head.y + size };
-        if (newHead.y >= canvas.height) newHead.y = 0; // Teletransporta para o topo
+        newHead = { x: head.x, y: head.y + size }
+        if (newHead.y >= canvas.height) newHead.y = 0 // Teletransporta para o topo
     }
     if (direction === 'up') {
-        newHead = { x: head.x, y: head.y - size };
-        if (newHead.y < 0) newHead.y = canvas.height - size; // Teletransporta para a parte inferior
+        newHead = { x: head.x, y: head.y - size }
+        if (newHead.y < 0) newHead.y = canvas.height - size // Teletransporta para a parte inferior
     }
 
     // Adiciona o novo segmento com a cor correta
-    cobra.push({ ...newHead, corCabeca: head.corCabeca, corCorpo: head.corCorpo });
-    cobra.shift();
-};
+    cobra.push({ ...newHead, corCabeca: head.corCabeca, corCorpo: head.corCorpo })
+    cobra.shift()
+}
 
 const checkEat = (cobra, score) => {
     const head = cobra[cobra.length - 1]
@@ -162,35 +159,35 @@ const checkEat = (cobra, score) => {
 }
 
 const checkHeadCollidesWithBody = (head, body) => {
-    return body.some(segment => segment.x === head.x && segment.y === head.y);
+    return body.some(segment => segment.x === head.x && segment.y === head.y)
 }
 
 const chackColision = (cobra1, cobra2) => {
-    const head1 = cobra1[cobra1.length - 1]; // Cabeça da Cobra 1
-    const head2 = cobra2[cobra2.length - 1]; // Cabeça da Cobra 2
-    const canvasLimit = canvas.width - size;
-    const neckIndex1 = cobra1.length - 2;
-    const neckIndex2 = cobra2.length - 2;
-
-    // Verifica colisão com as paredes
-    const wallColision1 = head1.x < 0 || head1.x > canvasLimit || head1.y < 0 || head1.y > canvasLimit;
-    const wallColision2 = head2.x < 0 || head2.x > canvasLimit || head2.y < 0 || head2.y > canvasLimit;
+    const head1 = cobra1[cobra1.length - 1] // Cabeça da Cobra 1
+    const head2 = cobra2[cobra2.length - 1] // Cabeça da Cobra 2
+    const neckIndex1 = cobra1.length - 2
+    const neckIndex2 = cobra2.length - 2
 
     // Verifica colisão com o próprio corpo
-    const selfColision1 = checkHeadCollidesWithBody(head1, cobra1.slice(0, neckIndex1));
-    const selfColision2 = checkHeadCollidesWithBody(head2, cobra2.slice(0, neckIndex2));
+    const selfColision1 = checkHeadCollidesWithBody(head1, cobra1.slice(0, neckIndex1))
+    const selfColision2 = checkHeadCollidesWithBody(head2, cobra2.slice(0, neckIndex2))
 
     // Verifica colisão entre as cabeças das cobras e o corpo da outra cobra
-    const playerColision1 = checkHeadCollidesWithBody(head1, cobra2);
-    const playerColision2 = checkHeadCollidesWithBody(head2, cobra1);
+    const playerColision1 = checkHeadCollidesWithBody(head1, cobra2)
+    const playerColision2 = checkHeadCollidesWithBody(head2, cobra1)
+
+    console.log(head1.x, head2.x)
 
     // Verifica e determina o resultado
-    if (selfColision1 || playerColision1) {
-        gameOver("Jogador 2 venceu!", 'blue')
+    if (head1.x == head2.x && head1.y == head2.y) {
+        empate()
 
     } else if (selfColision2 || playerColision2) {
         gameOver("Jogador 1 venceu!", 'red')
 
+    }else if(selfColision1 || playerColision1){
+        gameOver("Jogador 2 venceu!", 'blue')
+        
     }
 }
 
@@ -215,7 +212,21 @@ const gameOver = (player, color) => {
 
     death.play() // Reproduzir som de morte
     background.pause()
-    clearTimeout(loopId);// Parar o loop do jogo
+    clearTimeout(loopId)// Parar o loop do jogo
+}
+
+const empate = () =>{
+    directionP1 = undefined
+    directionP2 = undefined
+    stateGame.innerText = 'Empate'
+    stateGame.style.color = 'white'
+
+    menu.style.display = 'flex'
+    conatiner.style.filter = 'blur(5px)'
+
+    death.play() // Reproduzir som de morte
+    background.pause()
+    clearTimeout(loopId)// Parar o loop do jogo
 }
 
 const gameLoop = () => {
@@ -233,66 +244,66 @@ const gameLoop = () => {
 
     loopId = setTimeout(() => {
         gameLoop()
-    }, 150);
+    }, 150)
 }
 
 gameLoop()
 
 
 
-let directionLocked = false; // Variável para controlar o delay entre mudanças de direção
+let directionLocked = false // Variável para controlar o delay entre mudanças de direção
 
 document.addEventListener('keydown', ({ key }) => {
     if (isGameOver) return // Impedir movimento se o jogo acabou
 
-    if (directionLocked) return; // Se a direção estiver bloqueada, ignorar o comando
+    if (directionLocked) return // Se a direção estiver bloqueada, ignorar o comando
 
     // Verifica a direção atual para evitar a mudança para a direção oposta
     if (key === "ArrowRight" && directionP2 !== "left") {
-        directionP2 = 'right';
-        directionLocked = true;
+        directionP2 = 'right'
+        directionLocked = true
     }
 
     if (key === "ArrowLeft" && directionP2 !== "right") {
-        directionP2 = 'left';
-        directionLocked = true;
+        directionP2 = 'left'
+        directionLocked = true
     }
 
     if (key === "ArrowDown" && directionP2 !== "up") {
-        directionP2 = 'down';
-        directionLocked = true;
+        directionP2 = 'down'
+        directionLocked = true
     }
 
     if (key === "ArrowUp" && directionP2 !== "down") {
-        directionP2 = 'up';
-        directionLocked = true;
+        directionP2 = 'up'
+        directionLocked = true
     }
 
     //movimentação do player 2
 
     if ((key === "d" || key === 'D') && directionP1 !== "left") {
-        directionP1 = 'right';
-        directionLocked = true;
+        directionP1 = 'right'
+        directionLocked = true
     }
 
     if ((key === "a" || key === 'A') && directionP1 !== "right") {
-        directionP1 = 'left';
-        directionLocked = true;
+        directionP1 = 'left'
+        directionLocked = true
     }
 
     if ((key === "S" || key === 's') && directionP1 !== "up") {
-        directionP1 = 'down';
-        directionLocked = true;
+        directionP1 = 'down'
+        directionLocked = true
     }
     if ((key === "W" || key === 'w') && directionP1 !== "down") {
-        directionP1 = 'up';
-        directionLocked = true;
+        directionP1 = 'up'
+        directionLocked = true
     }
 
     setTimeout(() => {
-        directionLocked = false;
-    }, 100);
-});
+        directionLocked = false
+    }, 100)
+})
 
 buttonPlay.addEventListener('click', () => {
 
