@@ -27,7 +27,7 @@ background.volume = 0.5
 background.loop = true
 background.play()
 
-const initiaPosition = { x: 270, y: 240 }
+const initiaPosition = { x: 210, y: 210 }
 
 let isGameOver = false
 let minute = 0
@@ -313,6 +313,8 @@ buttonPlay.addEventListener('click', () => {
     conatiner.style.filter = 'none'
 
     cobrinha = [initiaPosition]
+    
+    location.reload()
 
     reset()
     

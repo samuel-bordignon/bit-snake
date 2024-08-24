@@ -37,11 +37,17 @@ body {
 .timer{
     font-size: 40px;
     width: 370px;
+
 }
 
-.menu-screen .timer{
+.timer-menu{
     font-size: 1.5rem;
-    width: fit-content;
+    margin-top: 40px;
+    
+}
+
+#mensagem{
+    color: white;
 }
 
 
@@ -84,6 +90,7 @@ canvas {
 .pontuacao-final {
     font-weight: 500;
     font-size: 1.5rem;
+    margin-top: 40px;
 }
 
 .btn-play,

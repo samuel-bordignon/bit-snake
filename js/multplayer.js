@@ -10,26 +10,22 @@ const stateGame = document.querySelector('.state-game')
 const buttonPlay = document.querySelector('.btn-play')
 const buttonMenu = document.querySelector('.btn-menu')
 
-
-const size = 30
-
 const audio = new Audio('audio.mp3')
 const background = new Audio('background.mp3')
 const death = new Audio('death.mp3')
+
+const dbCobrinha1 = { x: 150, y: 300, corCabeca: '#FF0000', corCorpo: '#D40000' }
+const dbCobrinha2 = { x: 450, y: 300, corCabeca: '#0000FF', corCorpo: '#0000D4' }
+const size = 30
 
 background.volume = 0.5
 background.loop = true
 background.play()
 
-
-const dbCobrinha1 = { x: 150, y: 300, corCabeca: '#FF0000', corCorpo: '#D40000' }
-const dbCobrinha2 = { x: 450, y: 300, corCabeca: '#0000FF', corCorpo: '#0000D4' }
-
 let isGameOver = false
-
 let cobrinha1 = [dbCobrinha1]
 let cobrinha2 = [dbCobrinha2]
-
+let directionLocked = false // Variável para controlar o delay entre mudanças de direção
 
 
 const incrementScore = (score) => {
@@ -200,13 +196,13 @@ const checkScore = (player) => {
 
 const gameOver = (player, color) => {
     if (isGameOver) return // Evitar chamada repetida de gameOver
-
+    
     directionP1 = undefined
     directionP2 = undefined
     stateGame.innerText = player
     stateGame.style.color = color
     isGameOver = true
-
+    
     menu.style.display = 'flex'
     conatiner.style.filter = 'blur(5px)'
 
@@ -216,10 +212,13 @@ const gameOver = (player, color) => {
 }
 
 const empate = () =>{
+    if (isGameOver) return // Evitar chamada repetida de gameOver
+
     directionP1 = undefined
     directionP2 = undefined
     stateGame.innerText = 'Empate'
     stateGame.style.color = 'white'
+    isGameOver = true
 
     menu.style.display = 'flex'
     conatiner.style.filter = 'blur(5px)'
@@ -249,13 +248,9 @@ const gameLoop = () => {
 
 gameLoop()
 
-
-
-let directionLocked = false // Variável para controlar o delay entre mudanças de direção
-
 document.addEventListener('keydown', ({ key }) => {
     if (isGameOver) return // Impedir movimento se o jogo acabou
-
+    
     if (directionLocked) return // Se a direção estiver bloqueada, ignorar o comando
 
     // Verifica a direção atual para evitar a mudança para a direção oposta
@@ -278,6 +273,16 @@ document.addEventListener('keydown', ({ key }) => {
         directionP2 = 'up'
         directionLocked = true
     }
+
+    setTimeout(() => {
+        directionLocked = false
+    }, 100)
+})
+
+document.addEventListener('keydown', ({ key }) => {
+    if (isGameOver) return // Impedir movimento se o jogo acabou
+    
+    if (directionLocked) return // Se a direção estiver bloqueada, ignorar o comando
 
     //movimentação do player 2
 
@@ -318,6 +323,8 @@ buttonPlay.addEventListener('click', () => {
 
     cobrinha1 = [dbCobrinha1]
     cobrinha2 = [dbCobrinha2]
+
+    location.reload()
 })
 
 buttonMenu.addEventListener('click', () => window.location.href = 'menu.html')
